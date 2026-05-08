@@ -52,6 +52,18 @@ app.post("/api/notes", (req, res) => {
   res.json(novaNota);
 });
 
+app.get('/api/notes/:id', (req, res) => {
+  const notes = readNotes();
+
+  const note = notes.find((n) => n.id === req.params.id);
+
+  if (!note) {
+    return res.status(404).json({ erro: 'Nota não encontrada' });
+  }
+
+  res.json(note);
+});
+
 // ====================
 // PUT - Editar nota
 // ====================
