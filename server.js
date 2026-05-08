@@ -2,6 +2,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const fs = require("fs");
+const cors = require("cors");
 
 const app = express();
 const PORT = 3000;
@@ -11,10 +12,7 @@ const FILE = "data.json";
 app.use(bodyParser.json());
 
 // Libera acesso externo (CORS)
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  next();
-});
+app.use(cors());
 
 // Função para ler arquivo
 function readNotes() {
@@ -46,19 +44,20 @@ app.post("/api/notes", (req, res) => {
     id: Date.now().toString(),
     titulo: req.body.titulo,
     texto: req.body.texto,
+    criadoEm: new Date().toISOString(),
   };
   notes.push(novaNota);
   saveNotes(notes);
   res.json(novaNota);
 });
 
-app.get('/api/notes/:id', (req, res) => {
+app.get("/api/notes/:id", (req, res) => {
   const notes = readNotes();
 
   const note = notes.find((n) => n.id === req.params.id);
 
   if (!note) {
-    return res.status(404).json({ erro: 'Nota não encontrada' });
+    return res.status(404).json({ erro: "Nota não encontrada" });
   }
 
   res.json(note);
@@ -87,7 +86,7 @@ app.delete("/api/notes/:id", (req, res) => {
   const notes = readNotes();
   const novasNotas = notes.filter((n) => n.id !== req.params.id);
   saveNotes(novasNotas);
-  res.json({ mensagem: "Nota removida" });
+  res.status(204).send();
 });
 // Inicia servidor
 app.listen(PORT, () => {
